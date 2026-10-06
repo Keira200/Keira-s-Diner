@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order | Keira's Diner</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+  <style>
+    /* ========== GLOBAL RESET & VARIABLES ========== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --dark-brown: #3e2c1f;
+      --gold: #c9a74b;
+      --cream: #fdf8f0;
+      --orange: #e67e22;
+      --white: #ffffff;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.18);
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--cream);
+      color: var(--dark-brown);
+      line-height: 1.6;
+      scroll-behavior: smooth;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    ul {
+      list-style: none;
+    }
+
+    /* ========== BUTTONS ========== */
+    .btn {
+      display: inline-block;
+      padding: 12px 28px;
+      border-radius: 40px;
+      font-weight: 600;
+      text-align: center;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .btn-primary {
+      background-color: var(--gold);
+      color: var(--dark-brown);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--orange);
+      color: var(--white);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    /* ========== NAVBAR ========== */
+    .navbar {
+      background-color: var(--dark-brown);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: var(--shadow);
+    }
+
+    .nav-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 20px;
+    }
+
+    .logo {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 1px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-links a {
+      color: var(--cream);
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: var(--gold);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .btn-order-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 18px;
+      background: var(--gold);
+      color: var(--dark-brown);
+      border-radius: 40px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      transition: background 0.3s, transform 0.3s;
+    }
+
+    .btn-order-nav:hover {
+      background: var(--orange);
+      color: var(--white);
+      transform: translateY(-2px);
+    }
+
+    .cart-icon {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      color: var(--cream);
+      font-size: 1rem;
+      transition: background 0.3s, transform 0.3s;
+    }
+
+    .cart-icon:hover {
+      background: var(--gold);
+      color: var(--dark-brown);
+      transform: translateY(-2px);
+    }
+
+    .cart-count {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: var(--orange);
+      color: var(--white);
+      font-size: 0.65rem;
+      font-weight: 700;
+      min-width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 4px;
+      border: 2px solid var(--dark-brown);
+    }
+
+    .hamburger {
+      display: none;
+      color: var(--cream);
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    /* ========== PAGE HEADER ========== */
+    .page-header {
+      background: var(--dark-brown);
+      color: var(--white);
+      text-align: center;
+      padding: 60px 20px 50px;
+    }
+
+    .page-header h1 {
+      font-size: 2.5rem;
+      color: var(--gold);
+      margin-bottom: 12px;
+      letter-spacing: 1px;
+    }
+
+    .page-header p {
+      font-size: 1.05rem;
+      color: var(--cream);
+      max-width: 620px;
+      margin: 0 auto;
+    }
+
+    /* ========== ORDER SECTION ========== */
+    .order {
+      padding: 70px 0 80px;
+      background: var(--cream);
+    }
+
+    .order-form {
+      max-width: 620px;
+      margin: 0 auto;
+      background: var(--white);
+      padding: 45px 40px;
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .form-group {
+      margin-bottom: 22px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--dark-brown);
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 13px 16px;
+      border: 2px solid #e5ddd2;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-family: inherit;
+      background: var(--cream);
+      color: var(--dark-brown);
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 4px rgba(201, 167, 75, 0.15);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 90px;
+    }
+
+    /* ========== PAYMENT METHODS ========== */
+    .payment-section {
+      margin-bottom: 22px;
+    }
+
+    .payment-section > label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--dark-brown);
+    }
+
+    .payment-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .payment-option {
+      position: relative;
+    }
+
+    .payment-option input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .payment-option label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: var(--cream);
+      border: 2px solid #e5ddd2;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--dark-brown);
+      transition: border-color 0.3s, background 0.3s, transform 0.3s;
+    }
+
+    .payment-option label:hover {
+      border-color: var(--gold);
+      transform: translateY(-2px);
+    }
+
+    .payment-option input[type="radio"]:checked + label {
+      border-color: var(--gold);
+      background: #fff7e6;
+      box-shadow: 0 0 0 3px rgba(201, 167, 75, 0.15);
+    }
+
+    .payment-option label i {
+      font-size: 1.3rem;
+      color: var(--gold);
+      width: 24px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .payment-option input[type="radio"]:checked + label i {
+      color: var(--orange);
+    }
+
+    /* ========== PAYMENT DETAILS BOX ========== */
+    .payment-details {
+      background: #fff7e6;
+      border: 2px solid var(--gold);
+      border-left: 6px solid var(--orange);
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-bottom: 22px;
+      display: none;
+    }
+
+    .payment-details.show {
+      display: block;
+    }
+
+    .payment-details h4 {
+      font-size: 1rem;
+      color: var(--orange);
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+
+    .payment-details p {
+      font-size: 0.9rem;
+      color: #444;
+      margin-bottom: 8px;
+      line-height: 1.6;
+    }
+
+    .payment-details strong {
+      color: var(--dark-brown);
+    }
+
+    .payment-details code {
+      background: var(--dark-brown);
+      color: var(--cream);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .payment-note {
+      font-size: 0.8rem !important;
+      color: #777 !important;
+      margin-top: 12px !important;
+      font-style: italic;
+      padding-top: 10px;
+      border-top: 1px dashed #e5ddd2;
+    }
+
+    .payment-steps {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .payment-steps li {
+      display: flex;
+      gap: 10px;
+      font-size: 0.88rem;
+      color: #444;
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+
+    .payment-steps li .step-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      background: var(--gold);
+      color: var(--white);
+      border-radius: 50%;
+      font-size: 0.75rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .mpesa-amount {
+      background: #e8f8ec;
+      color: #1e7e34;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    /* ========== WHATSAPP BUTTON ========== */
+    .btn-whatsapp {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 9px 22px;
+      border-radius: 40px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      background-color: #25D366;
+      color: var(--white);
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+      font-family: inherit;
+      margin: 0 auto;
+    }
+
+    .btn-whatsapp:hover {
+      background-color: #1ebe57;
+      transform: translateY(-2px);
+    }
+
+    .btn-whatsapp i {
+      font-size: 1rem;
+    }
+
+    .whatsapp-wrap {
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    .order-message {
+      text-align: center;
+      margin-top: 20px;
+      font-weight: 600;
+      font-size: 1rem;
+      min-height: 24px;
+    }
+
+    /* ========== CART SUMMARY ========== */
+    .cart-summary {
+      background: var(--cream);
+      border: 2px dashed #e5ddd2;
+      border-radius: 14px;
+      padding: 20px 22px;
+      margin-bottom: 26px;
+      display: none;
+    }
+
+    .cart-summary.show {
+      display: block;
+    }
+
+    .cart-summary h3 {
+      font-size: 1rem;
+      color: var(--orange);
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+
+    .cart-summary ul {
+      margin-bottom: 12px;
+    }
+
+    .cart-summary li {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      color: #555;
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .cart-summary li:last-child {
+      border-bottom: none;
+    }
+
+    .cart-summary .cart-total {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--dark-brown);
+      padding-top: 10px;
+      border-top: 2px solid var(--gold);
+      margin-top: 8px;
+    }
+
+    /* ========== BACK TO HOME BAR ========== */
+    .back-bar {
+      text-align: center;
+      padding: 50px 20px;
+      background: var(--white);
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    /* ========== FOOTER ========== */
+    .footer {
+      background: var(--dark-brown);
+      color: var(--cream);
+      padding: 60px 0 20px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    .footer-col h3,
+    .footer-col h4 {
+      color: var(--gold);
+      margin-bottom: 15px;
+    }
+
+    .footer-col ul li {
+      margin-bottom: 10px;
+    }
+
+    .footer-col ul li a {
+      transition: color 0.3s;
+    }
+
+    .footer-col ul li a:hover {
+      color: var(--gold);
+    }
+
+    .footer-col i {
+      color: var(--gold);
+      margin-right: 8px;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 15px;
+    }
+
+    .social-links a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      transition: background 0.3s, transform 0.3s;
+    }
+
+    .social-links a:hover {
+      background: var(--gold);
+      color: var(--dark-brown);
+      transform: translateY(-3px);
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* ========== FLOATING WHATSAPP ========== */
+    .whatsapp-float {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      width: 58px;
+      height: 58px;
+      background: #25D366;
+      color: #ffffff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.7rem;
+      box-shadow: 0 6px 18px rgba(37, 211, 102, 0.4);
+      z-index: 1500;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      text-decoration: none;
+    }
+
+    .whatsapp-float:hover {
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 10px 26px rgba(37, 211, 102, 0.55);
+      color: #ffffff;
+    }
+
+    .whatsapp-float::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: #25D366;
+      opacity: 0.55;
+      animation: whatsappPulse 2s infinite;
+      z-index: -1;
+    }
+
+    @keyframes whatsappPulse {
+      0% { transform: scale(1); opacity: 0.55; }
+      70% { transform: scale(1.5); opacity: 0; }
+      100% { transform: scale(1.5); opacity: 0; }
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: var(--dark-brown);
+        padding: 20px;
+        gap: 15px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      }
+
+      .nav-links.active { display: flex; }
+      .hamburger { display: block; }
+
+      .btn-order-nav span { display: none; }
+      .btn-order-nav { padding: 7px 12px; font-size: 0.75rem; }
+      .cart-icon { width: 34px; height: 34px; font-size: 0.9rem; }
+
+      .page-header { padding: 45px 20px 35px; }
+      .page-header h1 { font-size: 2rem; }
+      .page-header p { font-size: 0.95rem; }
+
+      .order { padding: 50px 0 60px; }
+      .order-form { padding: 30px 22px; }
+
+      .whatsapp-float {
+        width: 50px;
+        height: 50px;
+        font-size: 1.45rem;
+        bottom: 18px;
+        right: 18px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .payment-options { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========== NAVIGATION BAR ========== -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <div class="logo">Keira's Diner</div>
+      <nav>
+        <ul class="nav-links" id="navLinks">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="index.html#about">About</a></li>
+          <li><a href="menu.html">Menu</a></li>
+          <li><a href="services.html">Services</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+          <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="nav-actions">
+        <a href="order.html" class="btn-order-nav">
+          <i class="fas fa-shopping-bag"></i> <span>Order Online</span>
+        </a>
+        <a href="cart.html" class="cart-icon" aria-label="Cart">
+          <i class="fas fa-shopping-cart"></i>
+          <span class="cart-count" id="cartCount">0</span>
+        </a>
+        <div class="hamburger" id="hamburger">
+          <i class="fas fa-bars"></i>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========== PAGE HEADER ========== -->
+  <section class="page-header">
+    <h1>Place Your Order</h1>
+    <p>Confirm your details below and we will send your order to WhatsApp.</p>
+  </section>
+
+  <!-- ========== ORDER SECTION ========== -->
+  <section class="order">
+    <div class="container">
+
+      <form class="order-form" id="orderForm">
+
+        <!-- Cart summary -->
+        <div class="cart-summary" id="cartSummary">
+          <h3><i class="fas fa-shopping-cart"></i> Items in Your Cart</h3>
+          <ul id="cartSummaryList"></ul>
+          <div class="cart-total">
+            <span>Total</span>
+            <span id="cartSummaryTotal">KES 0</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="name">Customer Name</label>
+          <input type="text" id="name" placeholder="Your full name" required>
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Phone Number</label>
+          <input type="tel" id="phone" placeholder="0712 345 678" required>
+        </div>
+
+        <div class="form-group">
+          <label for="instructions">Special Instructions</label>
+          <textarea id="instructions" placeholder="Any allergies or special requests?"></textarea>
+        </div>
+
+        <!-- ========== PAYMENT METHODS ========== -->
+        <div class="payment-section">
+          <label>Payment Method</label>
+          <div class="payment-options">
+
+            <div class="payment-option">
+              <input type="radio" id="pay-mpesa" name="payment" value="M-Pesa" checked>
+              <label for="pay-mpesa">
+                <i class="fas fa-mobile-alt"></i>
+                M-Pesa
+              </label>
+            </div>
+
+            <div class="payment-option">
+              <input type="radio" id="pay-cash" name="payment" value="Cash on Delivery">
+              <label for="pay-cash">
+                <i class="fas fa-money-bill-wave"></i>
+                Cash on Delivery
+              </label>
+            </div>
+
+            <div class="payment-option">
+              <input type="radio" id="pay-card" name="payment" value="Card Payment">
+              <label for="pay-card">
+                <i class="fas fa-credit-card"></i>
+                Card Payment
+              </label>
+            </div>
+
+            <div class="payment-option">
+              <input type="radio" id="pay-bank" name="payment" value="Bank Transfer">
+              <label for="pay-bank">
+                <i class="fas fa-university"></i>
+                Bank Transfer
+              </label>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ========== PAYMENT DETAILS BOX ========== -->
+        <div class="payment-details" id="paymentDetails">
+          <h4 id="paymentDetailsTitle">Payment Details</h4>
+          <div id="paymentDetailsBody"></div>
+        </div>
+
+        <div class="whatsapp-wrap">
+          <button type="submit" class="btn-whatsapp">
+            <i class="fab fa-whatsapp"></i> Send Order via WhatsApp
+          </button>
+        </div>
+
+        <p class="order-message" id="orderMessage"></p>
+      </form>
+
+    </div>
+  </section>
+
+  <!-- ========== BACK TO HOME BAR ========== -->
+  <section class="back-bar">
+    <a href="index.html" class="btn btn-primary">Back to Home</a>
+  </section>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div class="footer-col">
+        <h3>Keira's Diner</h3>
+        <p>Serving happiness on every plate since 2020.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="index.html#about">About</a></li>
+          <li><a href="menu.html">Menu</a></li>
+          <li><a href="services.html">Services</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+          <li><a href="order.html">Order</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <ul>
+          <li><i class="fas fa-phone-alt"></i> +254 101 560 830</li>
+          <li><i class="fas fa-envelope"></i> hello@keirasdiner.co.ke</li>
+          <li><i class="fas fa-map-marker-alt"></i> Kerugoya, Kirinyaga County</li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Follow Us</h4>
+        <div class="social-links">
+          <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+          <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>2025 Keira's Diner. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- ========== FLOATING WHATSAPP BUTTON ========== -->
+  <a href="https://wa.me/254101560830?text=Hello%20Keira's%20Diner%2C%20I%20would%20like%20to%20place%20an%20order."
+     class="whatsapp-float"
+     target="_blank"
+     rel="noopener"
+     aria-label="Chat on WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+
+  <script>
+    /* ==========================================================
+       SETTINGS
+       ========================================================== */
+    const WHATSAPP_NUMBER = '254101560830';
+    const BACKEND_URL = 'https://keira-s-diner.onrender.com';
+    const MPESA_NUMBER = '254101560830';
+    const MPESA_NAME = "Keira's Diner";
+
+    /* ==========================================================
+       PAYMENT DETAILS
+       ========================================================== */
+    const paymentDetails = {
+      'M-Pesa': {
+        title: 'Send Money to Keira\'s Diner',
+        body: `
+          <ul class="payment-steps">
+            <li><span class="step-num">1</span><span>Dial <code>*334#</code> on your phone, or open the M-Pesa App.</span></li>
+            <li><span class="step-num">2</span><span>Select <strong>Send Money</strong>.</span></li>
+            <li><span class="step-num">3</span><span>Enter the recipient number: <code>${MPESA_NUMBER}</code></span></li>
+            <li><span class="step-num">4</span><span>Enter the amount: <span class="mpesa-amount">KES 0</span></span></li>
+            <li><span class="step-num">5</span><span>Enter your M-Pesa PIN and confirm.</span></li>
+            <li><span class="step-num">6</span><span>Share the M-Pesa confirmation code with us on WhatsApp.</span></li>
+          </ul>
+          <p class="payment-note">Send Money costs KSh 50 for amounts over KSh 100. The money goes directly to ${MPESA_NAME}.</p>
+        `
+      },
+      'Cash on Delivery': {
+        title: 'Cash on Delivery',
+        body: `
+          <p><strong>Pay with cash</strong> when your order is delivered or when you pick it up at the diner.</p>
+          <p class="payment-note">Please have the exact amount ready if possible.</p>
+        `
+      },
+      'Card Payment': {
+        title: 'Card Payment',
+        body: `
+          <p><strong>Accepted Cards:</strong> Visa, Mastercard</p>
+          <p>You can pay by card at the diner or when the delivery rider arrives with a card machine.</p>
+          <p class="payment-note">Please mention in the special instructions if you need a card machine at delivery.</p>
+        `
+      },
+      'Bank Transfer': {
+        title: 'Bank Transfer Details',
+        body: `
+          <p><strong>Bank:</strong> Equity Bank</p>
+          <p><strong>Account Name:</strong> Keira's Diner</p>
+          <p><strong>Account Number:</strong> 0123456789</p>
+          <p><strong>Branch:</strong> Kerugoya</p>
+          <p class="payment-note">After transferring, please share the transaction reference on WhatsApp.</p>
+        `
+      }
+    };
+
+    /* ==========================================================
+       CART FUNCTIONS
+       ========================================================== */
+    function getCart() {
+      return JSON.parse(localStorage.getItem('keiraCart') || '[]');
+    }
+
+    function updateCartCount() {
+      const cart = getCart();
+      const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+      const cartCountEl = document.getElementById('cartCount');
+      if (cartCountEl) cartCountEl.textContent = totalItems;
+    }
+
+    /* ==========================================================
+       SHOW CART SUMMARY
+       ========================================================== */
+    function showCartSummary() {
+      const cart = getCart();
+      const summaryEl = document.getElementById('cartSummary');
+      const listEl = document.getElementById('cartSummaryList');
+      const totalEl = document.getElementById('cartSummaryTotal');
+
+      if (cart.length === 0) {
+        summaryEl.classList.remove('show');
+        return;
+      }
+
+      listEl.innerHTML = '';
+      let total = 0;
+
+      cart.forEach(item => {
+        const lineTotal = item.price * item.quantity;
+        total += lineTotal;
+
+        const li = document.createElement('li');
+        li.innerHTML = `<span>${item.quantity} x ${item.name}</span><span>KES ${lineTotal}</span>`;
+        listEl.appendChild(li);
+      });
+
+      totalEl.textContent = 'KES ' + total;
+      summaryEl.classList.add('show');
+    }
+
+    /* ==========================================================
+       PAYMENT DETAILS - shows details for the chosen method
+       ========================================================== */
+    const paymentRadios = document.querySelectorAll('input[name="payment"]');
+    const paymentDetailsBox = document.getElementById('paymentDetails');
+    const paymentDetailsTitle = document.getElementById('paymentDetailsTitle');
+    const paymentDetailsBody = document.getElementById('paymentDetailsBody');
+
+    function showPaymentDetails(method) {
+      const details = paymentDetails[method];
+      if (!details) {
+        paymentDetailsBox.classList.remove('show');
+        return;
+      }
+
+      paymentDetailsTitle.textContent = details.title;
+      paymentDetailsBody.innerHTML = details.body;
+
+      if (method === 'M-Pesa') {
+        const cart = getCart();
+        const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        const amountEl = paymentDetailsBody.querySelector('.mpesa-amount');
+        if (amountEl) {
+          amountEl.textContent = 'KES ' + total;
+        }
+      }
+
+      paymentDetailsBox.classList.add('show');
+    }
+
+    paymentRadios.forEach(radio => {
+      radio.addEventListener('change', () => {
+        if (radio.checked) {
+          showPaymentDetails(radio.value);
+        }
+      });
+    });
+
+    const defaultPayment = document.querySelector('input[name="payment"]:checked');
+    if (defaultPayment) {
+      showPaymentDetails(defaultPayment.value);
+    }
+
+    /* ==========================================================
+       HAMBURGER MENU TOGGLE
+       ========================================================== */
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('navLinks');
+
+    hamburger.addEventListener('click', () => {
+      navLinks.classList.toggle('active');
+    });
+
+    navLinks.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('active');
+      });
+    });
+
+    /* ==========================================================
+       ORDER FORM SUBMISSION
+       Saves the order to the backend, then opens WhatsApp
+       ========================================================== */
+    const orderForm = document.getElementById('orderForm');
+    const orderMessage = document.getElementById('orderMessage');
+
+    orderForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const instructions = document.getElementById('instructions').value.trim();
+      const paymentInput = document.querySelector('input[name="payment"]:checked');
+      const payment = paymentInput ? paymentInput.value : 'Not specified';
+      const cart = getCart();
+
+      if (!name || !phone) {
+        orderMessage.textContent = 'Please fill in your name and phone number.';
+        orderMessage.style.color = '#c0392b';
+        return;
+      }
+
+      if (cart.length === 0) {
+        orderMessage.textContent = 'Your cart is empty. Please add items from the menu first.';
+        orderMessage.style.color = '#c0392b';
+        return;
+      }
+
+      const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+      const payload = {
+        name: name,
+        phone: phone,
+        payment: payment,
+        instructions: instructions,
+        items: cart.map(item => ({
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity
+        })),
+        total: total
+      };
+
+      orderMessage.textContent = 'Saving your order...';
+      orderMessage.style.color = '#555';
+
+      let orderId = 'N/A';
+      let backendOk = false;
+
+      // 1. Save to backend
+      try {
+        const res = await fetch(BACKEND_URL + '/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        if (data.success && data.order) {
+          orderId = data.order.id;
+          backendOk = true;
+        } else {
+          console.warn('Backend rejected order:', data.message);
+        }
+      } catch (err) {
+        console.warn('Backend not reachable:', err.message);
+      }
+
+      // 2. Build the WhatsApp message
+      let message = '';
+      message += '*NEW ORDER - Keira\'s Diner*\n\n';
+
+      if (backendOk) {
+        message += '*Order ID:* ' + orderId + '\n';
+      }
+
+      message += '*Customer Name:* ' + name + '\n';
+      message += '*Phone Number:* ' + phone + '\n';
+      message += '*Payment Method:* ' + payment + '\n\n';
+      message += '*Order Items:*\n';
+
+      cart.forEach(item => {
+        message += '- ' + item.quantity + ' x ' + item.name + ' = KES ' + (item.price * item.quantity) + '\n';
+      });
+
+      message += '\n*Total Items:* ' + itemCount + '\n';
+      message += '*Total Price:* KES ' + total + '\n';
+
+      if (instructions) {
+        message += '\n*Special Instructions:*\n' + instructions + '\n';
+      }
+
+      message += '\nThank you!';
+
+      const encodedMessage = encodeURIComponent(message);
+      const whatsappUrl = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodedMessage;
+
+      // 3. Open WhatsApp
+      window.open(whatsappUrl, '_blank');
+
+      // 4. Show the result
+      if (backendOk) {
+        orderMessage.innerHTML =
+          'Thank you, <strong>' + name + '</strong>! Your order <strong>' + orderId +
+          '</strong> has been saved. WhatsApp will open shortly.';
+        orderMessage.style.color = '#27ae60';
+      } else {
+        orderMessage.innerHTML =
+          'WhatsApp is opening with your order. Note: the order could not be saved to the server. ' +
+          'Please make sure the backend is running.';
+        orderMessage.style.color = '#d68910';
+      }
+
+      // 5. Clear the cart
+      localStorage.removeItem('keiraCart');
+      updateCartCount();
+      showCartSummary();
+      orderForm.reset();
+    });
+
+    /* ==========================================================
+       RUN ON PAGE LOAD
+       ========================================================== */
+    updateCartCount();
+    showCartSummary();
+  </script>
+
+</body>
+</html>

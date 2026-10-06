@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Services | Keira's Diner</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+  <style>
+    /* ========== GLOBAL RESET & VARIABLES ========== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --dark-brown: #3e2c1f;
+      --gold: #c9a74b;
+      --cream: #fdf8f0;
+      --orange: #e67e22;
+      --white: #ffffff;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.18);
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--cream);
+      color: var(--dark-brown);
+      line-height: 1.6;
+      scroll-behavior: smooth;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    ul {
+      list-style: none;
+    }
+
+    /* ========== BUTTONS ========== */
+    .btn {
+      display: inline-block;
+      padding: 12px 28px;
+      border-radius: 40px;
+      font-weight: 600;
+      text-align: center;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .btn-primary {
+      background-color: var(--gold);
+      color: var(--dark-brown);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--orange);
+      color: var(--white);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    /* ========== NAVBAR ========== */
+    .navbar {
+      background-color: var(--dark-brown);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: var(--shadow);
+    }
+
+    .nav-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 20px;
+    }
+
+    .logo {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 1px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-links a {
+      color: var(--cream);
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: var(--gold);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .btn-order-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 18px;
+      background: var(--gold);
+      color: var(--dark-brown);
+      border-radius: 40px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      transition: background 0.3s, transform 0.3s;
+    }
+
+    .btn-order-nav:hover {
+      background: var(--orange);
+      color: var(--white);
+      transform: translateY(-2px);
+    }
+
+    .cart-icon {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      color: var(--cream);
+      font-size: 1rem;
+      transition: background 0.3s, transform 0.3s;
+    }
+
+    .cart-icon:hover {
+      background: var(--gold);
+      color: var(--dark-brown);
+      transform: translateY(-2px);
+    }
+
+    .cart-count {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: var(--orange);
+      color: var(--white);
+      font-size: 0.65rem;
+      font-weight: 700;
+      min-width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 4px;
+      border: 2px solid var(--dark-brown);
+    }
+
+    .hamburger {
+      display: none;
+      color: var(--cream);
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    /* ========== PAGE HEADER ========== */
+    .page-header {
+      background: var(--dark-brown);
+      color: var(--white);
+      text-align: center;
+      padding: 60px 20px 50px;
+    }
+
+    .page-header h1 {
+      font-size: 2.5rem;
+      color: var(--gold);
+      margin-bottom: 12px;
+      letter-spacing: 1px;
+    }
+
+    .page-header p {
+      font-size: 1.05rem;
+      color: var(--cream);
+      max-width: 620px;
+      margin: 0 auto;
+    }
+
+    /* ========== SERVICES SECTION ========== */
+    .services {
+      padding: 70px 0 80px;
+      background: var(--cream);
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 35px;
+    }
+
+    .service-card {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 45px 35px;
+      box-shadow: var(--shadow);
+      text-align: center;
+      transition: transform 0.35s ease, box-shadow 0.35s ease;
+      border-top: 5px solid var(--gold);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .service-card:hover {
+      transform: translateY(-10px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .service-card::before {
+      content: '';
+      position: absolute;
+      top: -50px;
+      right: -50px;
+      width: 130px;
+      height: 130px;
+      background: var(--cream);
+      border-radius: 50%;
+      opacity: 0.5;
+      transition: transform 0.5s ease;
+    }
+
+    .service-card:hover::before {
+      transform: scale(1.4);
+    }
+
+    .service-icon {
+      position: relative;
+      z-index: 2;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: var(--cream);
+      margin-bottom: 22px;
+      transition: background 0.3s;
+    }
+
+    .service-card:hover .service-icon {
+      background: var(--gold);
+    }
+
+    .service-icon i {
+      font-size: 2.3rem;
+      color: var(--gold);
+      transition: color 0.3s;
+    }
+
+    .service-card:hover .service-icon i {
+      color: var(--white);
+    }
+
+    .service-card h3 {
+      position: relative;
+      z-index: 2;
+      font-size: 1.45rem;
+      color: var(--dark-brown);
+      margin-bottom: 14px;
+      font-weight: 700;
+    }
+
+    .service-card p {
+      position: relative;
+      z-index: 2;
+      font-size: 0.98rem;
+      color: #555;
+      line-height: 1.8;
+    }
+
+    /* ========== HIGHLIGHT BANNER ========== */
+    .highlight-banner {
+      padding: 70px 0;
+      background: var(--white);
+      text-align: center;
+    }
+
+    .highlight-banner h2 {
+      font-size: 2rem;
+      color: var(--dark-brown);
+      margin-bottom: 18px;
+    }
+
+    .highlight-banner p {
+      max-width: 700px;
+      margin: 0 auto 30px;
+      font-size: 1.05rem;
+      color: #555;
+    }
+
+    /* ========== BACK TO HOME BAR ========== */
+    .back-bar {
+      text-align: center;
+      padding: 50px 20px;
+      background: var(--cream);
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    /* ========== FOOTER ========== */
+    .footer {
+      background: var(--dark-brown);
+      color: var(--cream);
+      padding: 60px 0 20px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    .footer-col h3,
+    .footer-col h4 {
+      color: var(--gold);
+      margin-bottom: 15px;
+    }
+
+    .footer-col ul li {
+      margin-bottom: 10px;
+    }
+
+    .footer-col ul li a {
+      transition: color 0.3s;
+    }
+
+    .footer-col ul li a:hover {
+      color: var(--gold);
+    }
+
+    .footer-col i {
+      color: var(--gold);
+      margin-right: 8px;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 15px;
+    }
+
+    .social-links a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      transition: background 0.3s, transform 0.3s;
+    }
+
+    .social-links a:hover {
+      background: var(--gold);
+      color: var(--dark-brown);
+      transform: translateY(-3px);
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* ========== FLOATING WHATSAPP BUTTON ========== */
+    .whatsapp-float {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      width: 58px;
+      height: 58px;
+      background: #25D366;
+      color: #ffffff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.7rem;
+      box-shadow: 0 6px 18px rgba(37, 211, 102, 0.4);
+      z-index: 1500;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      text-decoration: none;
+    }
+
+    .whatsapp-float:hover {
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 10px 26px rgba(37, 211, 102, 0.55);
+      color: #ffffff;
+    }
+
+    .whatsapp-float::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: #25D366;
+      opacity: 0.55;
+      animation: whatsappPulse 2s infinite;
+      z-index: -1;
+    }
+
+    @keyframes whatsappPulse {
+      0% {
+        transform: scale(1);
+        opacity: 0.55;
+      }
+      70% {
+        transform: scale(1.5);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1.5);
+        opacity: 0;
+      }
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 992px) {
+      .page-header h1 { font-size: 2.2rem; }
+      .services-grid { gap: 28px; }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: var(--dark-brown);
+        padding: 20px;
+        gap: 15px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      }
+
+      .nav-links.active { display: flex; }
+      .hamburger { display: block; }
+
+      .btn-order-nav span { display: none; }
+      .btn-order-nav { padding: 7px 12px; font-size: 0.75rem; }
+      .cart-icon { width: 34px; height: 34px; font-size: 0.9rem; }
+
+      .page-header { padding: 45px 20px 35px; }
+      .page-header h1 { font-size: 2rem; }
+      .page-header p { font-size: 0.95rem; }
+
+      .services { padding: 50px 0 60px; }
+      .services-grid { grid-template-columns: 1fr; gap: 24px; }
+
+      .service-card { padding: 35px 25px; }
+      .service-icon { width: 75px; height: 75px; }
+      .service-icon i { font-size: 1.9rem; }
+      .service-card h3 { font-size: 1.25rem; }
+
+      .highlight-banner { padding: 50px 0; }
+      .highlight-banner h2 { font-size: 1.6rem; }
+
+      .whatsapp-float {
+        width: 50px;
+        height: 50px;
+        font-size: 1.45rem;
+        bottom: 18px;
+        right: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========== NAVIGATION BAR ========== -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <div class="logo">Keira's Diner</div>
+      <nav>
+        <ul class="nav-links" id="navLinks">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="index.html#about">About</a></li>
+          <li><a href="menu.html">Menu</a></li>
+          <li><a href="services.html">Services</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+          <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="nav-actions">
+        <a href="order.html" class="btn-order-nav">
+          <i class="fas fa-shopping-bag"></i> <span>Order Online</span>
+        </a>
+        <a href="cart.html" class="cart-icon" aria-label="Cart">
+          <i class="fas fa-shopping-cart"></i>
+          <span class="cart-count" id="cartCount">0</span>
+        </a>
+        <div class="hamburger" id="hamburger">
+          <i class="fas fa-bars"></i>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========== PAGE HEADER ========== -->
+  <section class="page-header">
+    <h1>Our Services</h1>
+    <p>Discover all the ways we can serve you at Keira's Diner.</p>
+  </section>
+
+  <!-- ========== SERVICES SECTION ========== -->
+  <section class="services">
+    <div class="container">
+      <div class="services-grid">
+
+        <div class="service-card">
+          <div class="service-icon">
+            <i class="fas fa-utensils"></i>
+          </div>
+          <h3>Dine In</h3>
+          <p>
+            Step into our warm and welcoming space. Enjoy a relaxed atmosphere
+            with family and friends while our friendly staff serve you freshly
+            prepared meals. Perfect for casual lunches, family dinners, and
+            special occasions.
+          </p>
+        </div>
+
+        <div class="service-card">
+          <div class="service-icon">
+            <i class="fas fa-mobile-alt"></i>
+          </div>
+          <h3>Online Ordering</h3>
+          <p>
+            Browse our full menu online and place your order in just a few
+            clicks. Choose to pick it up at the diner or have it delivered
+            to your door. Fast, simple, and convenient for busy days.
+          </p>
+        </div>
+
+        <div class="service-card">
+          <div class="service-icon">
+            <i class="fas fa-birthday-cake"></i>
+          </div>
+          <h3>Catering Services</h3>
+          <p>
+            Planning a birthday, wedding, or corporate event? We offer custom
+            catering packages to suit any occasion. From small gatherings to
+            large celebrations, we will make your event unforgettable with
+            delicious food and professional service.
+          </p>
+        </div>
+
+        <div class="service-card">
+          <div class="service-icon">
+            <i class="fas fa-truck"></i>
+          </div>
+          <h3>Home Delivery</h3>
+          <p>
+            Craving something delicious at home? We deliver hot, fresh meals
+            straight to your doorstep within Kerugoya in under 40 minutes.
+            Order now and enjoy restaurant-quality food without leaving
+            the comfort of your house.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== HIGHLIGHT BANNER ========== -->
+  <section class="highlight-banner">
+    <div class="container">
+      <h2>Ready to Experience Our Services?</h2>
+      <p>
+        Whether you want to dine with us, order online, plan an event, or
+        have food delivered to your home, we are here for you every day
+        from 8:00 AM to 10:00 PM.
+      </p>
+      <a href="order.html" class="btn btn-primary">Order Now</a>
+    </div>
+  </section>
+
+  <!-- ========== BACK TO HOME BAR ========== -->
+  <section class="back-bar">
+    <a href="index.html" class="btn btn-primary">Back to Home</a>
+  </section>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div class="footer-col">
+        <h3>Keira's Diner</h3>
+        <p>Serving happiness on every plate since 2020.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="index.html#about">About</a></li>
+          <li><a href="menu.html">Menu</a></li>
+          <li><a href="services.html">Services</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+          <li><a href="order.html">Order</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <ul>
+          <li><i class="fas fa-phone-alt"></i> +254 101560830</li>
+          <li><i class="fas fa-envelope"></i> hello@keirasdiner.co.ke</li>
+          <li><i class="fas fa-map-marker-alt"></i> Kerugoya, Kirinyaga County</li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Follow Us</h4>
+        <div class="social-links">
+          <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+          <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>2025 Keira's Diner. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- ========== FLOATING WHATSAPP BUTTON ========== -->
+  <a href="https://wa.me/254101560830?text=Hello%20Keira's%20Diner%2C%20I%20would%20like%20to%20place%20an%20order."
+     class="whatsapp-float"
+     target="_blank"
+     rel="noopener"
+     aria-label="Chat on WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+
+  <script>
+    /* ==========================================================
+       HAMBURGER MENU TOGGLE
+       ========================================================== */
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('navLinks');
+
+    hamburger.addEventListener('click', () => {
+      navLinks.classList.toggle('active');
+    });
+
+    navLinks.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('active');
+      });
+    });
+
+    /* ==========================================================
+       CART COUNT
+       ========================================================== */
+    function updateCartCount() {
+      const cart = JSON.parse(localStorage.getItem('keiraCart') || '[]');
+      const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+      const cartCountEl = document.getElementById('cartCount');
+      if (cartCountEl) {
+        cartCountEl.textContent = totalItems;
+      }
+    }
+
+    updateCartCount();
+  </script>
+
+</body>
+</html>

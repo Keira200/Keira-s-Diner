@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Cart | Keira's Diner</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+  <style>
+    /* ========== GLOBAL RESET & VARIABLES ========== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --dark-brown: #3e2c1f;
+      --gold: #c9a74b;
+      --cream: #fdf8f0;
+      --orange: #e67e22;
+      --white: #ffffff;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.18);
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--cream);
+      color: var(--dark-brown);
+      line-height: 1.6;
+      scroll-behavior: smooth;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    ul {
+      list-style: none;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    /* ========== BUTTONS ========== */
+    .btn {
+      display: inline-block;
+      padding: 12px 28px;
+      border-radius: 40px;
+      font-weight: 600;
+      text-align: center;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .btn-primary {
+      background-color: var(--gold);
+      color: var(--dark-brown);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--orange);
+      color: var(--white);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    /* ========== NAVBAR ========== */
+    .navbar {
+      background-color: var(--dark-brown);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: var(--shadow);
+    }
+
+    .nav-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 20px;
+    }
+
+    .logo {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 1px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-links a {
+      color: var(--cream);
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: var(--gold);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .btn-order-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 18px;
+      background: var(--gold);
+      color: var(--dark-brown);
+      border-radius: 40px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      transition: background 0.3s, transform 0.3s;
+    }
+
+    .btn-order-nav:hover {
+      background: var(--orange);
+      color: var(--white);
+      transform: translateY(-2px);
+    }
+
+    .cart-icon {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      color: var(--cream);
+      font-size: 1rem;
+      transition: background 0.3s, transform 0.3s;
+    }
+
+    .cart-icon:hover {
+      background: var(--gold);
+      color: var(--dark-brown);
+      transform: translateY(-2px);
+    }
+
+    .cart-count {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: var(--orange);
+      color: var(--white);
+      font-size: 0.65rem;
+      font-weight: 700;
+      min-width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 4px;
+      border: 2px solid var(--dark-brown);
+    }
+
+    .hamburger {
+      display: none;
+      color: var(--cream);
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    /* ========== PAGE HEADER ========== */
+    .page-header {
+      background: var(--dark-brown);
+      color: var(--white);
+      text-align: center;
+      padding: 60px 20px 50px;
+    }
+
+    .page-header h1 {
+      font-size: 2.5rem;
+      color: var(--gold);
+      margin-bottom: 12px;
+      letter-spacing: 1px;
+    }
+
+    .page-header p {
+      font-size: 1.05rem;
+      color: var(--cream);
+      max-width: 620px;
+      margin: 0 auto;
+    }
+
+    /* ========== CART SECTION ========== */
+    .cart-section {
+      padding: 60px 0 80px;
+      background: var(--cream);
+      min-height: 400px;
+    }
+
+    .empty-cart {
+      text-align: center;
+      padding: 60px 20px;
+      background: var(--white);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      max-width: 620px;
+      margin: 0 auto;
+    }
+
+    .empty-cart i {
+      font-size: 4rem;
+      color: var(--gold);
+      margin-bottom: 20px;
+    }
+
+    .empty-cart h2 {
+      font-size: 1.6rem;
+      color: var(--dark-brown);
+      margin-bottom: 12px;
+    }
+
+    .empty-cart p {
+      color: #777;
+      margin-bottom: 26px;
+      font-size: 1rem;
+    }
+
+    .cart-layout {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 30px;
+      align-items: flex-start;
+    }
+
+    .cart-items {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: var(--shadow);
+    }
+
+    .cart-items h2 {
+      font-size: 1.3rem;
+      color: var(--dark-brown);
+      margin-bottom: 22px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--cream);
+    }
+
+    .cart-item {
+      display: grid;
+      grid-template-columns: 90px 1fr auto auto;
+      gap: 18px;
+      align-items: center;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--cream);
+    }
+
+    .cart-item:last-child {
+      border-bottom: none;
+    }
+
+    .cart-item-img {
+      width: 90px;
+      height: 90px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #eee;
+    }
+
+    .cart-item-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .cart-item-info h4 {
+      font-size: 1.05rem;
+      color: var(--dark-brown);
+      margin-bottom: 4px;
+    }
+
+    .cart-item-info .item-price {
+      font-size: 0.9rem;
+      color: var(--orange);
+      font-weight: 700;
+    }
+
+    .quantity-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--cream);
+      border-radius: 30px;
+      padding: 4px 6px;
+    }
+
+    .qty-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: none;
+      background: var(--white);
+      color: var(--dark-brown);
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s, color 0.3s;
+      font-family: inherit;
+    }
+
+    .qty-btn:hover {
+      background: var(--gold);
+      color: var(--white);
+    }
+
+    .qty-value {
+      font-weight: 700;
+      font-size: 0.95rem;
+      min-width: 22px;
+      text-align: center;
+      color: var(--dark-brown);
+    }
+
+    .cart-item-actions {
+      text-align: right;
+    }
+
+    .line-total {
+      font-weight: 700;
+      color: var(--dark-brown);
+      font-size: 1rem;
+      margin-bottom: 6px;
+    }
+
+    .remove-btn {
+      background: transparent;
+      border: none;
+      color: #c0392b;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      padding: 2px 0;
+      transition: color 0.3s;
+    }
+
+    .remove-btn:hover {
+      color: #e74c3c;
+      text-decoration: underline;
+    }
+
+    .remove-btn i {
+      margin-right: 4px;
+    }
+
+    .cart-summary-box {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 90px;
+    }
+
+    .cart-summary-box h2 {
+      font-size: 1.3rem;
+      color: var(--dark-brown);
+      margin-bottom: 22px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--cream);
+    }
+
+    .summary-line {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.95rem;
+      color: #555;
+      margin-bottom: 12px;
+    }
+
+    .summary-line.total {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--dark-brown);
+      padding-top: 14px;
+      margin-top: 14px;
+      border-top: 2px solid var(--gold);
+    }
+
+    .cart-summary-box .btn {
+      width: 100%;
+      margin-top: 18px;
+    }
+
+    .continue-shopping {
+      display: block;
+      text-align: center;
+      margin-top: 14px;
+      font-size: 0.88rem;
+      color: var(--orange);
+      font-weight: 600;
+      transition: color 0.3s;
+    }
+
+    .continue-shopping:hover {
+      color: var(--dark-brown);
+    }
+
+    /* ========== FOOTER ========== */
+    .footer {
+      background: var(--dark-brown);
+      color: var(--cream);
+      padding: 60px 0 20px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    .footer-col h3,
+    .footer-col h4 {
+      color: var(--gold);
+      margin-bottom: 15px;
+    }
+
+    .footer-col ul li {
+      margin-bottom: 10px;
+    }
+
+    .footer-col ul li a {
+      transition: color 0.3s;
+    }
+
+    .footer-col ul li a:hover {
+      color: var(--gold);
+    }
+
+    .footer-col i {
+      color: var(--gold);
+      margin-right: 8px;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 15px;
+    }
+
+    .social-links a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      transition: background 0.3s, transform 0.3s;
+    }
+
+    .social-links a:hover {
+      background: var(--gold);
+      color: var(--dark-brown);
+      transform: translateY(-3px);
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* ========== FLOATING WHATSAPP BUTTON ========== */
+    .whatsapp-float {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      width: 58px;
+      height: 58px;
+      background: #25D366;
+      color: #ffffff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.7rem;
+      box-shadow: 0 6px 18px rgba(37, 211, 102, 0.4);
+      z-index: 1500;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      text-decoration: none;
+    }
+
+    .whatsapp-float:hover {
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 10px 26px rgba(37, 211, 102, 0.55);
+      color: #ffffff;
+    }
+
+    .whatsapp-float::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: #25D366;
+      opacity: 0.55;
+      animation: whatsappPulse 2s infinite;
+      z-index: -1;
+    }
+
+    @keyframes whatsappPulse {
+      0% {
+        transform: scale(1);
+        opacity: 0.55;
+      }
+      70% {
+        transform: scale(1.5);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1.5);
+        opacity: 0;
+      }
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 992px) {
+      .cart-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .cart-summary-box {
+        position: static;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: var(--dark-brown);
+        padding: 20px;
+        gap: 15px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      }
+
+      .nav-links.active { display: flex; }
+      .hamburger { display: block; }
+
+      .btn-order-nav span { display: none; }
+      .btn-order-nav { padding: 7px 12px; font-size: 0.75rem; }
+      .cart-icon { width: 34px; height: 34px; font-size: 0.9rem; }
+
+      .page-header { padding: 45px 20px 35px; }
+      .page-header h1 { font-size: 2rem; }
+      .page-header p { font-size: 0.95rem; }
+
+      .cart-section { padding: 40px 0 60px; }
+
+      .cart-items,
+      .cart-summary-box {
+        padding: 22px;
+      }
+
+      .cart-item {
+        grid-template-columns: 70px 1fr;
+        grid-template-areas:
+          "img info"
+          "qty actions";
+        gap: 12px;
+        row-gap: 16px;
+      }
+
+      .cart-item-img { grid-area: img; width: 70px; height: 70px; }
+      .cart-item-info { grid-area: info; }
+      .quantity-controls { grid-area: qty; justify-self: start; }
+      .cart-item-actions { grid-area: actions; justify-self: end; }
+
+      .whatsapp-float {
+        width: 50px;
+        height: 50px;
+        font-size: 1.45rem;
+        bottom: 18px;
+        right: 18px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .cart-item-info h4 { font-size: 0.95rem; }
+      .line-total { font-size: 0.9rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========== NAVIGATION BAR ========== -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <div class="logo">Keira's Diner</div>
+      <nav>
+        <ul class="nav-links" id="navLinks">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="index.html#about">About</a></li>
+          <li><a href="menu.html">Menu</a></li>
+          <li><a href="services.html">Services</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+          <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="nav-actions">
+        <a href="order.html" class="btn-order-nav">
+          <i class="fas fa-shopping-bag"></i> <span>Order Online</span>
+        </a>
+        <a href="cart.html" class="cart-icon" aria-label="Cart">
+          <i class="fas fa-shopping-cart"></i>
+          <span class="cart-count" id="cartCount">0</span>
+        </a>
+        <div class="hamburger" id="hamburger">
+          <i class="fas fa-bars"></i>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========== PAGE HEADER ========== -->
+  <section class="page-header">
+    <h1>Your Cart</h1>
+    <p>Review the items you have selected before placing your order.</p>
+  </section>
+
+  <!-- ========== CART SECTION ========== -->
+  <section class="cart-section">
+    <div class="container">
+
+      <!-- Empty cart message -->
+      <div class="empty-cart" id="emptyCart" style="display: none;">
+        <i class="fas fa-shopping-cart"></i>
+        <h2>Your cart is empty</h2>
+        <p>Add some delicious items from our menu to get started.</p>
+        <a href="menu.html" class="btn btn-primary">Browse Menu</a>
+      </div>
+
+      <!-- Cart layout -->
+      <div class="cart-layout" id="cartLayout" style="display: none;">
+
+        <!-- Items column -->
+        <div class="cart-items">
+          <h2>Items in Your Cart</h2>
+          <div id="cartItemsList"></div>
+        </div>
+
+        <!-- Summary column -->
+        <aside class="cart-summary-box">
+          <h2>Order Summary</h2>
+          <div class="summary-line">
+            <span>Items</span>
+            <span id="summaryItemCount">0</span>
+          </div>
+          <div class="summary-line">
+            <span>Subtotal</span>
+            <span id="summarySubtotal">KES 0</span>
+          </div>
+          <div class="summary-line">
+            <span>Delivery</span>
+            <span>KES 100</span>
+          </div>
+          <div class="summary-line total">
+            <span>Total</span>
+            <span id="summaryTotal">KES 0</span>
+          </div>
+          <a href="order.html" class="btn btn-primary">Proceed to Checkout</a>
+          <a href="menu.html" class="continue-shopping">Continue Shopping</a>
+        </aside>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div class="footer-col">
+        <h3>Keira's Diner</h3>
+        <p>Serving happiness on every plate since 2020.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="index.html#about">About</a></li>
+          <li><a href="menu.html">Menu</a></li>
+          <li><a href="services.html">Services</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+          <li><a href="order.html">Order</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <ul>
+          <li><i class="fas fa-phone-alt"></i> +254 712 345 678</li>
+          <li><i class="fas fa-envelope"></i> hello@keirasdiner.co.ke</li>
+          <li><i class="fas fa-map-marker-alt"></i> Kerugoya, Kirinyaga County</li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Follow Us</h4>
+        <div class="social-links">
+          <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+          <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>2025 Keira's Diner. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- ========== FLOATING WHATSAPP BUTTON ========== -->
+  <a href="https://wa.me/254101560830?text=Hello%20Keira's%20Diner%2C%20I%20would%20like%20to%20place%20an%20order."
+     class="whatsapp-float"
+     target="_blank"
+     rel="noopener"
+     aria-label="Chat on WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+
+  <script>
+    /* ==========================================================
+       CART STORAGE HELPERS
+       ========================================================== */
+    function getCart() {
+      return JSON.parse(localStorage.getItem('keiraCart') || '[]');
+    }
+
+    function saveCart(cart) {
+      localStorage.setItem('keiraCart', JSON.stringify(cart));
+    }
+
+    /* ==========================================================
+       MAP ITEM NAMES TO IMAGES
+       ========================================================== */
+    const itemImages = {
+      'Chicken Burger': 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200&h=200&fit=crop',
+      'Beef Burger': 'https://images.unsplash.com/photo-1550547660-d9450f859349?w=200&h=200&fit=crop',
+      'Cheese Burger': 'https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=200&h=200&fit=crop',
+      'Chicken Pizza': 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=200&h=200&fit=crop',
+      'Pepperoni Pizza': 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=200&h=200&fit=crop',
+      'Vegetarian Pizza': 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=200&h=200&fit=crop',
+      'French Fries': 'https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?w=200&h=200&fit=crop',
+      'Creamy Pasta': 'https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=200&h=200&fit=crop',
+      'Garden Salad': 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop',
+      'Grilled Chicken': 'https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=200&h=200&fit=crop',
+      'Beef Steak': 'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=200&h=200&fit=crop',
+      'Mixed Grill Platter': 'https://images.unsplash.com/photo-1544025162-d76694265947?w=200&h=200&fit=crop',
+      'Ugali and Sukuma Wiki': 'https://images.unsplash.com/photo-1604329760661-e71dc83f8f26?w=200&h=200&fit=crop',
+      'Nyama Choma': 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=200&h=200&fit=crop',
+      'Pilau': 'https://images.unsplash.com/photo-1585032226651-759b368d7246?w=200&h=200&fit=crop',
+      'Chapati and Beans': 'https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?w=200&h=200&fit=crop',
+      'Githeri': 'https://images.unsplash.com/photo-1596797038530-2c107229654b?w=200&h=200&fit=crop',
+      'Matoke': 'https://images.unsplash.com/photo-1603052875302-d376b7c0638a?w=200&h=200&fit=crop',
+      'Samosa': 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=200&h=200&fit=crop',
+      'Sausage Roll': 'https://images.unsplash.com/photo-1619895092538-128341789043?w=200&h=200&fit=crop',
+      'Chicken Wings': 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=200&h=200&fit=crop',
+      'Onion Rings': 'https://images.unsplash.com/photo-1599490659213-e2b9527bd087?w=200&h=200&fit=crop',
+      'Meat Pie': 'https://images.unsplash.com/photo-1623653387945-2fd25214f8fc?w=200&h=200&fit=crop',
+      'Chapati Roll': 'https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=200&h=200&fit=crop',
+      'Chocolate Cake': 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=200&h=200&fit=crop',
+      'Pancakes': 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=200&h=200&fit=crop',
+      'Ice Cream Sundae': 'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=200&h=200&fit=crop',
+      'Fruit Salad': 'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=200&h=200&fit=crop',
+      'Doughnut': 'https://images.unsplash.com/photo-1587314168485-3236d6710814?w=200&h=200&fit=crop',
+      'Cheesecake': 'https://images.unsplash.com/photo-1551106652-a5bcf4b29ab6?w=200&h=200&fit=crop',
+      'Coffee': 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=200&h=200&fit=crop',
+      'Tea': 'https://images.unsplash.com/photo-1571934811356-5cc061b6821f?w=200&h=200&fit=crop',
+      'Hot Chocolate': 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=200&h=200&fit=crop',
+      'Coca-Cola': 'https://images.unsplash.com/photo-1554866585-cd94860890b7?w=200&h=200&fit=crop',
+      'Fanta': 'https://images.unsplash.com/photo-1624517452488-04869289c4ca?w=200&h=200&fit=crop',
+      'Fresh Juice': 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=200&h=200&fit=crop',
+      'Milkshake': 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=200&h=200&fit=crop'
+    };
+
+    /* ==========================================================
+       UPDATE NAVBAR CART COUNT
+       ========================================================== */
+    function updateCartCount() {
+      const cart = getCart();
+      const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+      const cartCountEl = document.getElementById('cartCount');
+      if (cartCountEl) cartCountEl.textContent = totalItems;
+    }
+
+    /* ==========================================================
+       RENDER THE CART
+       ========================================================== */
+    const DELIVERY_FEE = 100;
+
+    function renderCart() {
+      const cart = getCart();
+      const emptyEl = document.getElementById('emptyCart');
+      const layoutEl = document.getElementById('cartLayout');
+      const listEl = document.getElementById('cartItemsList');
+
+      if (cart.length === 0) {
+        emptyEl.style.display = 'block';
+        layoutEl.style.display = 'none';
+        return;
+      }
+
+      emptyEl.style.display = 'none';
+      layoutEl.style.display = 'grid';
+
+      listEl.innerHTML = '';
+
+      cart.forEach(item => {
+        const lineTotal = item.price * item.quantity;
+        const imgSrc = itemImages[item.name] || 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200&h=200&fit=crop';
+
+        const itemEl = document.createElement('div');
+        itemEl.className = 'cart-item';
+
+        itemEl.innerHTML = `
+          <div class="cart-item-img">
+            <img src="${imgSrc}" alt="${item.name}">
+          </div>
+          <div class="cart-item-info">
+            <h4>${item.name}</h4>
+            <p class="item-price">KES ${item.price} each</p>
+          </div>
+          <div class="quantity-controls">
+            <button class="qty-btn" data-action="decrease" data-name="${item.name}">-</button>
+            <span class="qty-value">${item.quantity}</span>
+            <button class="qty-btn" data-action="increase" data-name="${item.name}">+</button>
+          </div>
+          <div class="cart-item-actions">
+            <div class="line-total">KES ${lineTotal}</div>
+            <button class="remove-btn" data-action="remove" data-name="${item.name}">
+              <i class="fas fa-trash-alt"></i> Remove
+            </button>
+          </div>
+        `;
+
+        listEl.appendChild(itemEl);
+      });
+
+      updateSummary(cart);
+    }
+
+    /* ==========================================================
+       UPDATE THE SUMMARY PANEL
+       ========================================================== */
+    function updateSummary(cart) {
+      const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+      const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      const total = subtotal + DELIVERY_FEE;
+
+      document.getElementById('summaryItemCount').textContent = itemCount;
+      document.getElementById('summarySubtotal').textContent = 'KES ' + subtotal;
+      document.getElementById('summaryTotal').textContent = 'KES ' + total;
+    }
+
+    /* ==========================================================
+       HANDLE QUANTITY + / - AND REMOVE
+       ========================================================== */
+    function handleCartAction(action, name) {
+      let cart = getCart();
+      const item = cart.find(i => i.name === name);
+
+      if (!item) return;
+
+      if (action === 'increase') {
+        item.quantity += 1;
+      } else if (action === 'decrease') {
+        item.quantity -= 1;
+        if (item.quantity <= 0) {
+          cart = cart.filter(i => i.name !== name);
+        }
+      } else if (action === 'remove') {
+        cart = cart.filter(i => i.name !== name);
+      }
+
+      saveCart(cart);
+      updateCartCount();
+      renderCart();
+    }
+
+    /* ==========================================================
+       EVENT DELEGATION FOR DYNAMIC BUTTONS
+       ========================================================== */
+    document.getElementById('cartItemsList').addEventListener('click', (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+
+      const action = btn.getAttribute('data-action');
+      const name = btn.getAttribute('data-name');
+
+      if (action && name) {
+        handleCartAction(action, name);
+      }
+    });
+
+    /* ==========================================================
+       HAMBURGER MENU TOGGLE
+       ========================================================== */
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('navLinks');
+
+    hamburger.addEventListener('click', () => {
+      navLinks.classList.toggle('active');
+    });
+
+    navLinks.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('active');
+      });
+    });
+
+    /* ==========================================================
+       RUN ON PAGE LOAD
+       ========================================================== */
+    updateCartCount();
+    renderCart();
+  </script>
+
+</body>
+</html>
