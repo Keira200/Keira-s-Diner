@@ -1,24 +1,38 @@
 // ==========================================================
-// KEIRA'S DINER - BACKEND SERVER
+// KEIRA'S DINER - BACKEND SERVER (MySQL version)
 // ==========================================================
 
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
+const mysql = require('mysql2/promise');
 const crypto = require('crypto');
+const path = require('path');
+require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const ORDERS_FILE = path.join(__dirname, 'orders.json');
+// ==========================================================
+// SETTINGS
+// ==========================================================
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'KeiraAdmin2025!';
 
 // ==========================================================
-// ADMIN AUTHENTICATION
-// CHANGE THE PASSWORD BELOW TO SOMETHING ONLY YOU KNOW
+// MYSQL CONNECTION POOL
 // ==========================================================
-const ADMIN_PASSWORD = 'KeiraAdmin2025!';
-const ADMIN_TOKENS = new Set();
+const pool = mysql.createPool({
+  host: process.env.MYSQL_HOST,
+  port: process.env.MYSQL_PORT || 3306,
+  user: process.env.MYSQL_USER,
+  password: process.env.MYSQL_PASSWORD,
+  database: process.env.MYSQL_DATABASE,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
 
 // ==========================================================
 // MIDDLEWARE
@@ -30,25 +44,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 // ==========================================================
 // HELPERS
 // ==========================================================
-function readOrders() {
-  try {
-    if (!fs.existsSync(ORDERS_FILE)) return [];
-    const data = fs.readFileSync(ORDERS_FILE, 'utf8');
-    return JSON.parse(data || '[]');
-  } catch (err) {
-    console.error('Error reading orders:', err);
-    return [];
-  }
-}
-
-function writeOrders(orders) {
-  try {
-    fs.writeFileSync(ORDERS_FILE, JSON.stringify(orders, null, 2), 'utf8');
-  } catch (err) {
-    console.error('Error writing orders:', err);
-  }
-}
-
 function generateOrderId() {
   const timestamp = Date.now().toString(36).toUpperCase();
   const random = Math.random().toString(36).substring(2, 6).toUpperCase();
@@ -59,28 +54,43 @@ function generateToken() {
   return crypto.randomBytes(32).toString('hex');
 }
 
-function requireAdmin(req, res, next) {
+async function requireAdmin(req, res, next) {
   const authHeader = req.headers['authorization'] || '';
   const token = authHeader.replace('Bearer ', '').trim();
 
-  if (!token || !ADMIN_TOKENS.has(token)) {
-    return res.status(401).json({ success: false, message: 'Unauthorized. Please log in.' });
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'Unauthorized.' });
   }
 
-  next();
+  try {
+    const [rows] = await pool.execute(
+      'SELECT token FROM admin_tokens WHERE token = ?',
+      [token]
+    );
+    if (rows.length === 0) {
+      return res.status(401).json({ success: false, message: 'Unauthorized.' });
+    }
+    next();
+  } catch (err) {
+    console.error('Auth check error:', err);
+    res.status(500).json({ success: false, message: 'Server error.' });
+  }
 }
 
 // ==========================================================
 // PUBLIC ROUTES
 // ==========================================================
 
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', service: "Keira's Diner backend", time: new Date().toISOString() });
+app.get('/api/health', async (req, res) => {
+  try {
+    await pool.query('SELECT 1');
+    res.json({ status: 'ok', service: "Keira's Diner backend", time: new Date().toISOString() });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: 'Database not reachable.' });
+  }
 });
 
-// Create a new order (public - customers use this)
-app.post('/api/orders', (req, res) => {
+app.post('/api/orders', async (req, res) => {
   const { name, phone, payment, instructions, items, total } = req.body;
 
   if (!name || !phone || !items || !Array.isArray(items) || items.length === 0) {
@@ -90,37 +100,51 @@ app.post('/api/orders', (req, res) => {
     });
   }
 
-  const order = {
-    id: generateOrderId(),
-    createdAt: new Date().toISOString(),
-    name: name.trim(),
-    phone: phone.trim(),
-    payment: payment || 'Not specified',
-    instructions: (instructions || '').trim(),
-    items: items,
-    total: total || 0,
-    status: 'new'
-  };
+  const orderId = generateOrderId();
 
-  const orders = readOrders();
-  orders.unshift(order);
-  writeOrders(orders);
+  try {
+    await pool.execute(
+      'INSERT INTO orders (id, name, phone, payment, instructions, total, status) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [orderId, name.trim(), phone.trim(), payment || 'Not specified', (instructions || '').trim(), total || 0, 'new']
+    );
 
-  console.log(`New order received: ${order.id} from ${order.name} - KES ${order.total}`);
+    for (const item of items) {
+      await pool.execute(
+        'INSERT INTO order_items (order_id, name, price, quantity) VALUES (?, ?, ?, ?)',
+        [orderId, item.name, item.price, item.quantity]
+      );
+    }
 
-  res.status(201).json({
-    success: true,
-    message: 'Order received successfully.',
-    order: order
-  });
+    console.log(`New order saved: ${orderId} from ${name} - KES ${total}`);
+
+    const order = {
+      id: orderId,
+      createdAt: new Date().toISOString(),
+      name: name.trim(),
+      phone: phone.trim(),
+      payment: payment || 'Not specified',
+      instructions: (instructions || '').trim(),
+      items: items,
+      total: total || 0,
+      status: 'new'
+    };
+
+    res.status(201).json({
+      success: true,
+      message: 'Order received successfully.',
+      order: order
+    });
+  } catch (err) {
+    console.error('Error saving order:', err);
+    res.status(500).json({ success: false, message: 'Server error saving order.' });
+  }
 });
 
 // ==========================================================
 // ADMIN AUTH ROUTES
 // ==========================================================
 
-// Admin login
-app.post('/api/admin/login', (req, res) => {
+app.post('/api/admin/login', async (req, res) => {
   const { password } = req.body;
 
   if (!password) {
@@ -133,20 +157,30 @@ app.post('/api/admin/login', (req, res) => {
   }
 
   const token = generateToken();
-  ADMIN_TOKENS.add(token);
 
-  console.log('Admin logged in. Token issued.');
-
-  res.json({ success: true, message: 'Login successful.', token: token });
+  try {
+    await pool.execute(
+      'INSERT INTO admin_tokens (token, created_at) VALUES (?, NOW())',
+      [token]
+    );
+    console.log('Admin logged in. Token saved to database.');
+    res.json({ success: true, message: 'Login successful.', token: token });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ success: false, message: 'Server error saving token.' });
+  }
 });
 
-// Admin logout
-app.post('/api/admin/logout', (req, res) => {
+app.post('/api/admin/logout', async (req, res) => {
   const authHeader = req.headers['authorization'] || '';
   const token = authHeader.replace('Bearer ', '').trim();
 
   if (token) {
-    ADMIN_TOKENS.delete(token);
+    try {
+      await pool.execute('DELETE FROM admin_tokens WHERE token = ?', [token]);
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
   }
 
   res.json({ success: true, message: 'Logged out.' });
@@ -154,54 +188,71 @@ app.post('/api/admin/logout', (req, res) => {
 
 // ==========================================================
 // PROTECTED ADMIN ROUTES
-// These require a valid admin token
 // ==========================================================
 
-// Get all orders
-app.get('/api/orders', requireAdmin, (req, res) => {
-  const orders = readOrders();
-  res.json({ success: true, count: orders.length, orders: orders });
-});
+app.get('/api/orders', requireAdmin, async (req, res) => {
+  try {
+    const [orders] = await pool.query('SELECT * FROM orders ORDER BY created_at DESC');
 
-// Get a single order
-app.get('/api/orders/:id', requireAdmin, (req, res) => {
-  const orders = readOrders();
-  const order = orders.find(o => o.id === req.params.id);
-  if (!order) {
-    return res.status(404).json({ success: false, message: 'Order not found.' });
+    for (const order of orders) {
+      const [items] = await pool.execute(
+        'SELECT name, price, quantity FROM order_items WHERE order_id = ?',
+        [order.id]
+      );
+      order.items = items;
+      order.createdAt = order.created_at;
+      order.status = order.status || 'new';
+    }
+
+    res.json({ success: true, count: orders.length, orders: orders });
+  } catch (err) {
+    console.error('Error fetching orders:', err);
+    res.status(500).json({ success: false, message: 'Server error fetching orders.' });
   }
-  res.json({ success: true, order: order });
 });
 
-// Update order status
-app.patch('/api/orders/:id', requireAdmin, (req, res) => {
+app.get('/api/orders/:id', requireAdmin, async (req, res) => {
+  try {
+    const [orders] = await pool.execute('SELECT * FROM orders WHERE id = ?', [req.params.id]);
+    if (orders.length === 0) {
+      return res.status(404).json({ success: false, message: 'Order not found.' });
+    }
+    const order = orders[0];
+    const [items] = await pool.execute(
+      'SELECT name, price, quantity FROM order_items WHERE order_id = ?',
+      [order.id]
+    );
+    order.items = items;
+    order.createdAt = order.created_at;
+    res.json({ success: true, order: order });
+  } catch (err) {
+    console.error('Error fetching order:', err);
+    res.status(500).json({ success: false, message: 'Server error.' });
+  }
+});
+
+app.patch('/api/orders/:id', requireAdmin, async (req, res) => {
   const { status } = req.body;
-  const orders = readOrders();
-  const order = orders.find(o => o.id === req.params.id);
-  if (!order) {
-    return res.status(404).json({ success: false, message: 'Order not found.' });
+  if (!status) {
+    return res.status(400).json({ success: false, message: 'Status required.' });
   }
-  if (status) {
-    order.status = status;
-    writeOrders(orders);
+  try {
+    await pool.execute('UPDATE orders SET status = ? WHERE id = ?', [status, req.params.id]);
+    res.json({ success: true, message: 'Order updated.' });
+  } catch (err) {
+    console.error('Error updating order:', err);
+    res.status(500).json({ success: false, message: 'Server error.' });
   }
-  res.json({ success: true, order: order });
 });
 
-// Delete an order
-app.delete('/api/orders/:id', requireAdmin, (req, res) => {
-  let orders = readOrders();
-  const before = orders.length;
-  orders = orders.filter(o => o.id !== req.params.id);
-  if (orders.length === before) {
-    return res.status(404).json({ success: false, message: 'Order not found.' });
+app.delete('/api/orders/:id', requireAdmin, async (req, res) => {
+  try {
+    await pool.execute('DELETE FROM orders WHERE id = ?', [req.params.id]);
+    res.json({ success: true, message: 'Order deleted.' });
+  } catch (err) {
+    console.error('Error deleting order:', err);
+    res.status(500).json({ success: false, message: 'Server error.' });
   }
-  writeOrders(orders);
-  res.json({ success: true, message: 'Order deleted.' });
-});
-// Redirect root to login page
-app.get('/', (req, res) => {
-  res.redirect('/login.html');
 });
 
 // ==========================================================
@@ -210,11 +261,8 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log('');
   console.log('==================================================');
-  console.log("  Keira's Diner backend is running");
+  console.log("  Keira's Diner backend is running (MySQL)");
   console.log('  http://localhost:' + PORT);
-  console.log('  Admin login: http://localhost:' + PORT + '/login.html');
-  console.log('  Admin panel: http://localhost:' + PORT + '/admin.html');
-  console.log('  API health: http://localhost:' + PORT + '/api/health');
   console.log('==================================================');
   console.log('');
 });
